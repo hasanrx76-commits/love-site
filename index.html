@@ -2617,6 +2617,12 @@ body.admin-mode .add-quote-btn:hover {
           <button class="admin-export-btn" id="cloud-join-btn">Connect to Partner</button>
         </div>
         <div class="admin-group" id="cloud-has-id" style="display:none;">
+          <label>Invite Link (partner ko ye link bhejo - wo direct connect ho jayegi)</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="cloud-invite-link" class="fancy-input" readonly placeholder="Invite link...">
+            <button class="admin-export-btn" id="cloud-invite-btn" style="white-space:nowrap;">Copy Link</button>
+          </div>
+          <div style="height:6px;"></div>
           <button class="admin-export-btn danger" id="cloud-disconnect-btn">Disconnect Cloud</button>
         </div>
         <div class="admin-group">
@@ -7582,6 +7588,10 @@ const Customizer = (() => {
       if (noId) noId.style.display = cid ? 'none' : 'block';
       if (hasId) hasId.style.display = cid ? 'block' : 'none';
       if (navBtn) navBtn.style.opacity = '1';
+      const linkEl = document.getElementById('cloud-invite-link');
+      if (linkEl) {
+        linkEl.value = cid ? (location.origin + location.pathname + '?c=' + cid) : '';
+      }
       if (statusEl) {
         if (status === 'loading') {
           statusEl.textContent = 'Connecting to Firebase cloud...';
@@ -7632,20 +7642,36 @@ const Customizer = (() => {
     document.getElementById('cloud-copy-btn')?.addEventListener('click', () => {
       const id = Cloud.getCoupleId();
       if (!id) { Sections.showToast('Create a couple first'); return; }
-      const copy = function (text) {
+      const copy = function (text, msg) {
+        const fallback = function (t) {
+          const ta = document.createElement('textarea');
+          ta.value = t;
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); Sections.showToast(msg); } catch (e) {}
+          document.body.removeChild(ta);
+        };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(() => Sections.showToast('Couple ID copied: ' + text)).catch(() => fallback(text));
+          navigator.clipboard.writeText(text).then(() => Sections.showToast(msg)).catch(() => fallback(text));
         } else fallback(text);
       };
-      const fallback = function (text) {
+      copy(id, 'Couple ID copied: ' + id);
+    });
+
+    document.getElementById('cloud-invite-btn')?.addEventListener('click', () => {
+      const linkEl = document.getElementById('cloud-invite-link');
+      if (!linkEl || !linkEl.value) { Sections.showToast('Create a couple first'); return; }
+      const fallback = function (t) {
         const ta = document.createElement('textarea');
-        ta.value = text;
+        ta.value = t;
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand('copy'); Sections.showToast('Couple ID copied: ' + text); } catch (e) {}
+        try { document.execCommand('copy'); Sections.showToast('Invite link copied! Partner ko bhejo.'); } catch (e) {}
         document.body.removeChild(ta);
       };
-      copy(id);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(linkEl.value).then(() => Sections.showToast('Invite link copied! Partner ko bhejo.')).catch(() => fallback(linkEl.value));
+      } else fallback(linkEl.value);
     });
 
     document.getElementById('cloud-disconnect-btn')?.addEventListener('click', () => {
@@ -8710,6 +8736,27 @@ const Sync = (() => {
 
     // Init cloud sync (Firebase). Falls back to local mode if no config.
     try { Cloud.init(); } catch (e) { console.warn('Cloud init failed:', e); }
+
+    // Invite link auto-join: partner opens ...?c=LOVE-XXXXXX and connects instantly
+    try {
+      if (typeof Cloud !== 'undefined' && Cloud.onStatus) {
+        Cloud.onStatus((status) => {
+          if (status === 'nosync') {
+            const invite = new URLSearchParams(window.location.search).get('c');
+            if (invite) {
+              Cloud.joinCouple(invite).then((ok) => {
+                if (ok) {
+                  Sections.showToast('Connected with your love! &#128150;');
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete('c');
+                  window.history.replaceState({}, '', url);
+                }
+              });
+            }
+          }
+        });
+      }
+    } catch (e) { console.warn('Invite auto-join failed:', e); }
 
     // Init PeerJS sync only when cloud is not available
     if (!(typeof Cloud !== 'undefined' && Cloud.isEnabled())) {
