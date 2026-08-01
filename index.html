@@ -981,63 +981,6 @@ input, textarea, select { font-family: inherit; }
   animation: fadeInUp 0.6s ease;
 }
 
-/* --- QUIZ --- */
-.quiz-box {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.quiz-question {
-  font-size: 1.2rem;
-  margin-bottom: 25px;
-  padding: 20px;
-  background: var(--bg-card);
-  border-radius: var(--radius);
-}
-
-.quiz-options {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.quiz-option {
-  padding: 14px 20px;
-  background: var(--bg-card);
-  border: 2px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-size: 0.95rem;
-  text-align: left;
-  transition: var(--transition);
-  cursor: pointer;
-}
-.quiz-option:hover {
-  border-color: var(--primary);
-  background: rgba(255,107,157,0.1);
-}
-.quiz-option.correct {
-  border-color: #4caf50;
-  background: rgba(76,175,80,0.2);
-}
-.quiz-option.wrong {
-  border-color: #f44336;
-  background: rgba(244,67,54,0.2);
-}
-
-.quiz-result {
-  padding: 15px;
-  border-radius: var(--radius-sm);
-  margin-bottom: 15px;
-  font-weight: 600;
-}
-.quiz-score {
-  font-size: 1.3rem;
-  color: var(--primary);
-  margin: 20px 0;
-}
-
 /* --- MEMORY GAME --- */
 .memory-game { text-align: center; }
 
@@ -1293,6 +1236,12 @@ input, textarea, select { font-family: inherit; }
 }
 .footer-heart:nth-child(2) { animation-delay: 0.3s; }
 .footer-heart:nth-child(3) { animation-delay: 0.6s; }
+.footer-credit {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 10px;
+  opacity: 0.7;
+}
 
 /* --- ADMIN PANEL --- */
 .admin-panel {
@@ -1955,6 +1904,7 @@ body.admin-mode .add-quote-btn:hover {
         <div id="love-story-content" class="story-content">
           <div class="story-placeholder">Add your love story paragraphs in the admin panel</div>
         </div>
+        <button class="couple-add-photo-btn add-direct-btn" id="add-lovestory-now">&#128172; Add Story</button>
       </div>
     </section>
 
@@ -2083,24 +2033,7 @@ body.admin-mode .add-quote-btn:hover {
           <div class="surprise-cards" id="surprise-cards"></div>
         </div>
         <button class="surprise-reveal-btn" id="surprise-reveal">Click to Reveal</button>
-      </div>
-    </section>
-
-    <!-- SECTION 14: COUPLE QUIZ -->
-    <section id="section-quiz" class="section" data-section="quiz">
-      <div class="section-inner">
-        <h2 class="section-title">Couple Quiz</h2>
-        <div id="quiz-container" class="quiz-box">
-          <div id="quiz-question" class="quiz-question"></div>
-          <div id="quiz-options" class="quiz-options"></div>
-          <div id="quiz-result" class="quiz-result hidden"></div>
-          <div id="quiz-score" class="quiz-score hidden">
-            Score: <span id="quiz-score-num">0</span> / <span id="quiz-total">0</span>
-          </div>
-          <button id="quiz-next" class="glow-btn quiz-next-btn hidden">Next Question</button>
-          <button id="quiz-start" class="glow-btn">Start Quiz</button>
-          <button id="quiz-restart" class="glow-btn hidden">Play Again</button>
-        </div>
+        <button class="couple-add-photo-btn add-direct-btn" id="add-surprise-now" style="margin-top:15px;">&#127873; Add Surprise</button>
       </div>
     </section>
 
@@ -2126,7 +2059,7 @@ body.admin-mode .add-quote-btn:hover {
         <div id="wish-wall" class="wish-wall-container">
           <div class="wish-placeholder">Add wishes to the wall</div>
         </div>
-        <div class="wish-input-area admin-only">
+        <div class="wish-input-area">
           <input type="text" id="wish-input" placeholder="Write a wish..." class="fancy-input">
           <button id="add-wish-btn" class="glow-btn small">Post</button>
         </div>
@@ -2140,6 +2073,11 @@ body.admin-mode .add-quote-btn:hover {
         <div id="visitor-book" class="visitor-book-container">
           <div class="visitor-placeholder">Leave a message for the couple</div>
         </div>
+        <div class="visitor-input-area">
+          <input type="text" id="visitor-name" placeholder="Your name (optional)" class="fancy-input">
+          <input type="text" id="visitor-message" placeholder="Leave a sweet message..." class="fancy-input">
+          <button id="add-visitor-btn" class="glow-btn small">Post</button>
+        </div>
       </div>
     </section>
 
@@ -2150,6 +2088,7 @@ body.admin-mode .add-quote-btn:hover {
         <div id="photo-frames" class="photo-frames-container">
           <div class="frames-placeholder">Upload photos for frames in the admin panel</div>
         </div>
+        <button class="couple-add-photo-btn add-direct-btn" id="add-frames-now">&#128247; Add Photo</button>
       </div>
     </section>
 
@@ -2188,6 +2127,7 @@ body.admin-mode .add-quote-btn:hover {
           <span class="footer-heart">&#10084;</span>
           <span class="footer-heart">&#10084;</span>
         </div>
+        <p class="footer-credit">This website was made by Asif friend</p>
       </div>
     </footer>
 
@@ -2321,11 +2261,6 @@ body.admin-mode .add-quote-btn:hover {
         <h3>Wishes</h3>
         <div id="admin-wishes-list" class="admin-list"></div>
         <button class="admin-add-btn" id="admin-add-wish">+ Add Wish</button>
-
-        <hr class="admin-divider">
-        <h3>Quiz Questions</h3>
-        <div id="admin-quiz-list" class="admin-list"></div>
-        <button class="admin-add-btn" id="admin-add-quiz">+ Add Question</button>
       </div>
 
       <!-- TAB: Dates -->
@@ -2852,13 +2787,6 @@ const Storage = (() => {
     videos: [],
     music: [],
     visitors: [],
-    quiz: [
-      { q: 'Where did we first meet?', options: ['At a party','Online','At work','Through friends'], answer: 3 },
-      { q: 'What is our favorite thing to do together?', options: ['Cook','Travel','Watch movies','All of the above'], answer: 3 },
-      { q: 'Who said "I love you" first?', options: ['Him','Her','Both at the same time','Neither'], answer: 0 },
-      { q: 'What is our song?', options: ['Our Song','Perfect','Thinking Out Loud','All of the above'], answer: 3 },
-      { q: 'Where was our first date?', options: ['Restaurant','Park','Coffee shop','Cinema'], answer: 0 }
-    ],
     style: {
       theme: 'romantic',
       primaryColor: '#ff6b9d',
@@ -3405,7 +3333,7 @@ const Cloud = (() => {
   const SECTION_KEYS = [
     'names', 'photos', 'about', 'dates', 'content',
     'loveLetters', 'paragraphs', 'memories', 'secrets', 'timeline',
-    'quotes', 'wishes', 'gallery', 'videos', 'music', 'visitors', 'quiz',
+    'quotes', 'wishes', 'gallery', 'videos', 'music', 'visitors',
     'style', 'effects', 'loveTheme', 'musicAutoplay', 'secretLock'
   ];
 
@@ -5922,7 +5850,6 @@ const Sections = (() => {
       { id: 'memories', label: 'Memories' },
       { id: 'countdown', label: 'Countdown' },
       { id: 'gift', label: 'Gift' },
-      { id: 'quiz', label: 'Quiz' },
       { id: 'memory-game', label: 'Game' },
       { id: 'wish', label: 'Wishes' },
       { id: 'visitor', label: 'Visitor Book' },
@@ -6534,6 +6461,55 @@ const Sections = (() => {
 
   // --- Setup All Direct Add Buttons ---
   function setupDirectAddButtons() {
+    // Love Story Paragraph
+    const lovestoryBtn = document.getElementById('add-lovestory-now');
+    if (lovestoryBtn) {
+      lovestoryBtn.onclick = () => openContentModal('Add Love Story Paragraph', [
+        { key: 'text', label: 'Your Story', type: 'textarea', placeholder: 'Write about a special moment...' }
+      ], (data) => {
+        if (!data.text) { showToast('Please write something!'); return; }
+        const content = Storage.getData('content');
+        content.loveStory = content.loveStory ? content.loveStory + '\n' + data.text : data.text;
+        Storage.setData('content', content);
+        renderLoveStory();
+        Animations.refresh();
+        showToast('Story added! &#128172;');
+      });
+    }
+
+    // Surprise Message
+    const surpriseBtn = document.getElementById('add-surprise-now');
+    if (surpriseBtn) {
+      surpriseBtn.onclick = () => openContentModal('Add Surprise Message', [
+        { key: 'text', label: 'Surprise Message', type: 'textarea', placeholder: 'Something sweet and unexpected...' }
+      ], (data) => {
+        if (!data.text) { showToast('Please write something!'); return; }
+        const content = Storage.getData('content');
+        content.surpriseMessages = content.surpriseMessages ? content.surpriseMessages + '\n' + data.text : data.text;
+        Storage.setData('content', content);
+        renderSurprise();
+        Animations.refresh();
+        showToast('Surprise added! &#127873;');
+      });
+    }
+
+    // Photo Frames (same gallery storage)
+    const framesBtn = document.getElementById('add-frames-now');
+    if (framesBtn) {
+      framesBtn.onclick = () => openContentModal('Add Photo to Frames', [
+        { key: 'data', label: 'Choose Photo', type: 'file', accept: 'image/*' },
+        { key: 'name', label: 'Photo Title (optional)', placeholder: 'e.g. Our day at the beach' }
+      ], async (data) => {
+        if (!data.data) { showToast('Please choose a photo!'); return; }
+        const dataUrl = await Storage.fileToBase64(data.data);
+        Storage.addItem('gallery', { data: dataUrl, name: data.name || data.data.name || 'Photo' });
+        renderGallery();
+        renderFrames();
+        Animations.refresh();
+        showToast('Photo added! &#128247;');
+      });
+    }
+
     // Timeline Event
     const timelineBtn = document.getElementById('add-timeline-event-now');
     if (timelineBtn) {
@@ -7719,7 +7695,7 @@ const Customizer = (() => {
     });
   }
 
-  // --- Dynamic Lists (Letters, Paragraphs, Memories, Secrets, Timeline, Quotes, Wishes, Quiz) ---
+  // --- Dynamic Lists (Letters, Paragraphs, Memories, Secrets, Timeline, Quotes, Wishes) ---
   function setupDynamicLists() {
     // Love Letters
     document.getElementById('admin-add-letter').addEventListener('click', () => {
@@ -7793,18 +7769,6 @@ const Customizer = (() => {
       });
     });
 
-    // Quiz
-    document.getElementById('admin-add-quiz').addEventListener('click', () => {
-      const q = { q: '', options: ['', '', '', ''], answer: 0 };
-      showEditModal('Quiz Question', q, (data) => {
-        if (typeof data.options === 'string') {
-          data.options = data.options.split('\n').filter(o => o.trim());
-        }
-        Storage.addItem('quiz', data);
-        renderAdminLists();
-      }, true);
-    });
-
     // Section add buttons
     document.getElementById('add-timeline-event')?.addEventListener('click', () => {
       document.getElementById('admin-toggle').click();
@@ -7872,7 +7836,6 @@ const Customizer = (() => {
     renderAdminList('admin-timeline-list', 'timeline', t => t.title || 'Untitled event');
     renderAdminList('admin-quotes-list', 'quotes', q => q.text || 'Empty quote');
     renderAdminList('admin-wishes-list', 'wishes', w => w.text || 'Empty wish');
-    renderAdminList('admin-quiz-list', 'quiz', q => q.q || 'Empty question');
   }
 
   function renderAdminList(containerId, section, labelFn) {
@@ -7894,15 +7857,11 @@ const Customizer = (() => {
     const item = items.find(i => i.id === id);
     if (!item) return;
 
-    const isQuiz = section === 'quiz';
     showEditModal('Edit ' + section, { ...item }, (data) => {
-      if (isQuiz && typeof data.options === 'string') {
-        data.options = data.options.split('\n').filter(o => o.trim());
-      }
       Storage.updateItem(section, id, data);
       renderAdminLists();
       Sections.renderAll();
-    }, isQuiz);
+    });
   }
 
   function deleteItem(section, id) {
@@ -7914,7 +7873,7 @@ const Customizer = (() => {
   }
 
   // --- Edit Modal ---
-  function showEditModal(title, data, onSave, isQuiz = false) {
+  function showEditModal(title, data, onSave) {
     // Remove existing modal
     const existing = document.getElementById('edit-modal');
     if (existing) existing.remove();
@@ -7935,21 +7894,7 @@ const Customizer = (() => {
       if (skipFields.includes(key)) return;
       const val = data[key];
 
-      if (key === 'options' && isQuiz) {
-        fieldsHTML += `
-          <div style="margin-bottom:12px">
-            <label style="display:block;font-size:0.8rem;color:#aaa;margin-bottom:4px;text-transform:uppercase">${key} (one per line)</label>
-            <textarea id="modal-${key}" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem;min-height:80px">${Array.isArray(val) ? val.join('\n') : val || ''}</textarea>
-          </div>
-        `;
-      } else if (key === 'answer' && isQuiz) {
-        fieldsHTML += `
-          <div style="margin-bottom:12px">
-            <label style="display:block;font-size:0.8rem;color:#aaa;margin-bottom:4px;text-transform:uppercase">Correct Answer Index (0-3)</label>
-            <input type="number" id="modal-${key}" value="${val || 0}" min="0" max="3" style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:0.9rem">
-          </div>
-        `;
-      } else if (key === 'date') {
+      if (key === 'date') {
         fieldsHTML += `
           <div style="margin-bottom:12px">
             <label style="display:block;font-size:0.8rem;color:#aaa;margin-bottom:4px;text-transform:uppercase">${key}</label>
@@ -8043,108 +7988,13 @@ const Customizer = (() => {
 </script>
   <script>
 /* ============================================
-   GAMES MODULE - Quiz & Memory Game
+   GAMES MODULE - Memory Game
    ============================================ */
 
 const Games = (() => {
-  let quizState = { questions: [], current: 0, score: 0, answered: false };
   let memoryState = { cards: [], flipped: [], matched: [], moves: 0, started: false };
 
   const emojis = ['&#128150;', '&#128151;', '&#128152;', '&#128153;', '&#128154;', '&#128155;', '&#128156;', '&#128157;', '&#128158;', '&#128159;', '&#127800;', '&#127801;', '&#127802;', '&#127803;', '&#127804;'];
-
-  // --- QUIZ ---
-  function initQuiz() {
-    document.getElementById('quiz-start').addEventListener('click', startQuiz);
-    document.getElementById('quiz-next').addEventListener('click', nextQuestion);
-    document.getElementById('quiz-restart').addEventListener('click', startQuiz);
-  }
-
-  function startQuiz() {
-    const questions = Storage.getArray('quiz');
-    if (questions.length === 0) {
-      document.getElementById('quiz-question').textContent = 'No questions yet! Add them in the admin panel.';
-      return;
-    }
-
-    // Shuffle
-    quizState.questions = shuffle([...questions]);
-    quizState.current = 0;
-    quizState.score = 0;
-    quizState.answered = false;
-
-    document.getElementById('quiz-start').classList.add('hidden');
-    document.getElementById('quiz-restart').classList.add('hidden');
-    document.getElementById('quiz-next').classList.add('hidden');
-    document.getElementById('quiz-result').classList.add('hidden');
-    document.getElementById('quiz-score').classList.add('hidden');
-
-    renderQuestion();
-  }
-
-  function renderQuestion() {
-    const q = quizState.questions[quizState.current];
-    if (!q) return showQuizResult();
-
-    document.getElementById('quiz-question').textContent = q.q;
-
-    const optionsEl = document.getElementById('quiz-options');
-    optionsEl.innerHTML = q.options.map((opt, i) => `
-      <button class="quiz-option" data-index="${i}" onclick="Games.answerQuiz(${i})">${escapeHTML(opt)}</button>
-    `).join('');
-
-    quizState.answered = false;
-    document.getElementById('quiz-result').classList.add('hidden');
-    document.getElementById('quiz-next').classList.add('hidden');
-  }
-
-  function answerQuiz(index) {
-    if (quizState.answered) return;
-    quizState.answered = true;
-
-    const q = quizState.questions[quizState.current];
-    const options = document.querySelectorAll('.quiz-option');
-
-    options.forEach((opt, i) => {
-      opt.onclick = null;
-      if (i === q.answer) opt.classList.add('correct');
-      if (i === index && i !== q.answer) opt.classList.add('wrong');
-    });
-
-    const resultEl = document.getElementById('quiz-result');
-    if (index === q.answer) {
-      quizState.score++;
-      resultEl.textContent = 'Correct! &#10004;';
-      resultEl.style.color = '#4caf50';
-    } else {
-      resultEl.textContent = 'Wrong! The correct answer was: ' + escapeHTML(q.options[q.answer]);
-      resultEl.style.color = '#f44336';
-    }
-    resultEl.classList.remove('hidden');
-
-    document.getElementById('quiz-next').classList.remove('hidden');
-  }
-
-  function nextQuestion() {
-    quizState.current++;
-    if (quizState.current >= quizState.questions.length) {
-      showQuizResult();
-    } else {
-      renderQuestion();
-    }
-  }
-
-  function showQuizResult() {
-    document.getElementById('quiz-question').textContent = 'Quiz Complete!';
-    document.getElementById('quiz-options').innerHTML = '';
-
-    const scoreEl = document.getElementById('quiz-score');
-    scoreEl.classList.remove('hidden');
-    document.getElementById('quiz-score-num').textContent = quizState.score;
-    document.getElementById('quiz-total').textContent = quizState.questions.length;
-
-    document.getElementById('quiz-next').classList.add('hidden');
-    document.getElementById('quiz-restart').classList.remove('hidden');
-  }
 
   // --- MEMORY GAME ---
   function initMemoryGame() {
@@ -8247,11 +8097,10 @@ const Games = (() => {
   }
 
   function init() {
-    initQuiz();
     initMemoryGame();
   }
 
-  return { init, answerQuiz, flipCard, startQuiz: () => startQuiz() };
+  return { init, flipCard };
 })();
 
 </script>
@@ -8814,8 +8663,7 @@ const Sync = (() => {
           gallery: ['renderGallery'],
           videos: ['renderVideos'],
           music: [],
-          visitors: ['renderVisitors'],
-          quiz: []
+          visitors: ['renderVisitors']
         };
         if (map[section]) {
           map[section].forEach(fn => { if (typeof S[fn] === 'function') S[fn](); });
