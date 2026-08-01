@@ -589,7 +589,14 @@ const Customizer = (() => {
     function render(status, coupleId) {
       const enabled = Cloud.isEnabled();
       if (!enabled && status === 'local') {
-        if (statusEl) statusEl.textContent = 'Local mode - Firebase config not set. Create a free Firebase project and paste your config into js/firebase-config.js';
+        let msg = 'Local mode - Firebase config not set. Create a free Firebase project and paste your config into js/firebase-config.js';
+        let errMsg = null;
+        try { errMsg = Cloud.getLastError ? Cloud.getLastError() : null; } catch (e) {}
+        if (errMsg) {
+          msg = 'Cloud error: ' + errMsg;
+          if (statusEl) statusEl.style.color = '#ff6b6b';
+        }
+        if (statusEl) statusEl.textContent = msg;
         if (warn) warn.style.display = 'block';
         if (idEl) idEl.value = '';
         if (noId) noId.style.display = 'none';

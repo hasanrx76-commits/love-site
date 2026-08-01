@@ -26,6 +26,7 @@ const Cloud = (() => {
   let mediaCache = {};      // cached media data URLs by item id
   let storageOK = true;     // false once a Storage upload fails (bucket not set up / Blaze required)
   let statusCbs = [];
+  let lastError = null;     // human-readable reason when init/cloud fails
 
   const COUPLE_KEY = 'rw_couple_id';
 
@@ -106,13 +107,18 @@ const Cloud = (() => {
     setStatus('loading');
     try {
       await loadSdk();
-      app = firebase.initializeApp(config);
-      db = firebase.firestore(app);
-      storage = firebase.storage(app);
+      if (!window.firebase || !window.firebase.initializeApp) {
+        throw new Error('Firebase SDK failed to load (blocked or offline?)');
+      }
+      app = window.firebase.initializeApp(config);
+      db = window.firebase.firestore(app);
+      storage = window.firebase.storage(app);
 
-      // Offline persistence: keeps working after refresh / on flaky internet
+      // Offline persistence: keeps working after refresh / on flaky internet.
+      // (No synchronizeTabs - it can hang or fail on some mobile browsers,
+      //  and multi-device sync already works through Firestore realtime.)
       try {
-        await db.enablePersistence({ synchronizeTabs: true });
+        await db.enablePersistence();
       } catch (err) {
         if (err.code !== 'failed-precondition') console.warn('Persistence:', err);
       }
@@ -130,6 +136,7 @@ const Cloud = (() => {
         setStatus('nosync');
       }
     } catch (err) {
+      lastError = (err && err.message) ? err.message : String(err);
       console.warn('Firebase init failed:', err);
       enabled = false;
       setStatus('local');
@@ -420,6 +427,6 @@ const Cloud = (() => {
     init, isEnabled, hasCouple,
     getCoupleId, onStatus, createCouple, joinCouple, disconnect,
     getCache, pushSection, addMediaItem, deleteMediaFile, storePhoto,
-    getMedia, deleteMedia
+    getMedia, deleteMedia, getLastError: () => lastError
   };
 })();

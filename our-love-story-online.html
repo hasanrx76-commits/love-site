@@ -3326,6 +3326,7 @@ const Cloud = (() => {
   let mediaCache = {};      // cached media data URLs by item id
   let storageOK = true;     // false once a Storage upload fails (bucket not set up / Blaze required)
   let statusCbs = [];
+  let lastError = null;     // human-readable reason when init/cloud fails
 
   const COUPLE_KEY = 'rw_couple_id';
 
@@ -3406,13 +3407,18 @@ const Cloud = (() => {
     setStatus('loading');
     try {
       await loadSdk();
-      app = firebase.initializeApp(config);
-      db = firebase.firestore(app);
-      storage = firebase.storage(app);
+      if (!window.firebase || !window.firebase.initializeApp) {
+        throw new Error('Firebase SDK failed to load (blocked or offline?)');
+      }
+      app = window.firebase.initializeApp(config);
+      db = window.firebase.firestore(app);
+      storage = window.firebase.storage(app);
 
-      // Offline persistence: keeps working after refresh / on flaky internet
+      // Offline persistence: keeps working after refresh / on flaky internet.
+      // (No synchronizeTabs - it can hang or fail on some mobile browsers,
+      //  and multi-device sync already works through Firestore realtime.)
       try {
-        await db.enablePersistence({ synchronizeTabs: true });
+        await db.enablePersistence();
       } catch (err) {
         if (err.code !== 'failed-precondition') console.warn('Persistence:', err);
       }
@@ -3430,6 +3436,7 @@ const Cloud = (() => {
         setStatus('nosync');
       }
     } catch (err) {
+      lastError = (err && err.message) ? err.message : String(err);
       console.warn('Firebase init failed:', err);
       enabled = false;
       setStatus('local');
@@ -3720,7 +3727,7 @@ const Cloud = (() => {
     init, isEnabled, hasCouple,
     getCoupleId, onStatus, createCouple, joinCouple, disconnect,
     getCache, pushSection, addMediaItem, deleteMediaFile, storePhoto,
-    getMedia, deleteMedia
+    getMedia, deleteMedia, getLastError: () => lastError
   };
 })();
 
@@ -7550,7 +7557,14 @@ const Customizer = (() => {
     function render(status, coupleId) {
       const enabled = Cloud.isEnabled();
       if (!enabled && status === 'local') {
-        if (statusEl) statusEl.textContent = 'Local mode - Firebase config not set. Create a free Firebase project and paste your config into js/firebase-config.js';
+        let msg = 'Local mode - Firebase config not set. Create a free Firebase project and paste your config into js/firebase-config.js';
+        let errMsg = null;
+        try { errMsg = Cloud.getLastError ? Cloud.getLastError() : null; } catch (e) {}
+        if (errMsg) {
+          msg = 'Cloud error: ' + errMsg;
+          if (statusEl) statusEl.style.color = '#ff6b6b';
+        }
+        if (statusEl) statusEl.textContent = msg;
         if (warn) warn.style.display = 'block';
         if (idEl) idEl.value = '';
         if (noId) noId.style.display = 'none';
@@ -8779,8 +8793,8 @@ const Sync = (() => {
     }
   });
 
-  // SW disabled in single-file build
-  if (false && 'serviceWorker' in navigator) {
+  // --- Service Worker for PWA ---
+  if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js').catch(() => {
         // SW not available, that's fine
